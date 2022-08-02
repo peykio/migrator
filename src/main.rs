@@ -303,16 +303,25 @@ fn gather_validated_migrations(args: &Args, client: &mut postgres::Client) -> Re
 
 
 fn compute_diff(source: &Config, target: &Config) -> Result<String> {
-	let output = std::process::Command::new("migra")
-		.arg("--unsafe")
-		.arg("--with-privileges")
-		.arg(to_connection_string(source))
-		.arg(to_connection_string(target))
-		.output()
-		.context("Error while calling migra")?;
+	// let output = std::process::Command::new("migra")
+	// 	.arg("--unsafe")
+	// 	.arg("--with-privileges")
+	// 	.arg(to_connection_string(source))
+	// 	.arg(to_connection_string(target))
+	// 	.output()
+	// 	.context("Error while calling migra")?;
 
-	if output.stderr.len() != 0 {
-		return Err(anyhow!("migra failed: {}\n\n{}", output.status, String::from_utf8_lossy(&output.stderr)));
+	let output = std::process::Command::new("docker")
+		.arg("run")
+		.arg("--network=host")
+		.arg("supabase/pgadmin-schema-diff")
+		.arg(to_connection_string(target))
+		.arg(to_connection_string(source))
+		.output()
+		.context("Error while calling 'docker run pgadmin-schema-diff'")?;
+
+	if !output.status.success() {
+		return Err(anyhow!("diff failed: {}\n\n{}", output.status, String::from_utf8_lossy(&output.stderr)));
 	}
 	Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
