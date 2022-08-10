@@ -10,9 +10,7 @@ RUN cargo build --release
 COPY src ./src
 RUN cargo install --target x86_64-unknown-linux-musl --path .
 
-
-FROM python:alpine
-RUN pip install migra~=3.0.0 psycopg2-binary~=2.9.3
+FROM supabase/pgadmin-schema-diff:latest
 
 COPY --from=builder /usr/local/cargo/bin/postgres_migrator /usr/bin/
 

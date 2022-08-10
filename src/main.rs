@@ -311,10 +311,18 @@ fn compute_diff(source: &Config, target: &Config) -> Result<String> {
 	// 	.output()
 	// 	.context("Error while calling migra")?;
 
-	let output = std::process::Command::new("docker")
-		.arg("run")
-		.arg("--network=host")
-		.arg("supabase/pgadmin-schema-diff")
+	// let output = std::process::Command::new("docker")
+	// 	.arg("run")
+	// 	.arg("--network=host")
+	// 	.arg("supabase/pgadmin-schema-diff")
+	// 	.arg(to_connection_string(target))
+	// 	.arg(to_connection_string(source))
+	// 	.output()
+	// 	.context("Error while calling 'docker run pgadmin-schema-diff'")?;
+
+	let output = std::process::Command::new("/venv/bin/python3")
+		.arg("-u")
+		.arg("/pgadmin4/web/cli.py")
 		.arg(to_connection_string(target))
 		.arg(to_connection_string(source))
 		.output()
