@@ -1,7 +1,5 @@
-create type flavor_type as enum('SWEET', 'SAVORY');
-
 create table fruit (
-	id serial primary key,
+	id text primary key,
 	name text not null unique,
-	flavor flavor_type not null default 'SWEET'
+	flavor text not null default 'SWEET'
 );
