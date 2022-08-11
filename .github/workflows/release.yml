@@ -55,21 +55,37 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: postgres-migrator-bin-linux-x64
-          path: artifacts/linux-x64
+          path: bin/linux-x64
 
       - uses: actions/download-artifact@v2
         with:
           name: postgres-migrator-bin-macos-x64
-          path: artifacts/macos-x64
+          path: bin/macos-x64
 
       - uses: actions/download-artifact@v2
         with:
           name: postgres-migrator-bin-macos-arm64
-          path: artifacts/macos-arm64
+          path: bin/macos-arm64
 
       - name: Mark binaries as executable
-        working-directory: artifacts
+        working-directory: bin
         run: |
           chmod +x linux-x64/postgres_migrator
           chmod +x macos-x64/postgres_migrator
           chmod +x macos-arm64/postgres_migrator
+
+      - run: ls bin
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          scope: "@peykio"
+          node-version: 16
+      # - name: Create Release Pull Request or Publish Packages
+      #   uses: changesets/action@v1
+      #   with:
+      #     commit: "📦 version packages"
+      #     publish: npx changeset publish
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
