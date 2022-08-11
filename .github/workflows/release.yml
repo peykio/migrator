@@ -1,0 +1,53 @@
+name: Release
+
+concurrency:
+  group: release-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            build-name: postgres_migrator
+            artifact-name: relay-bin-linux-x64
+            packages: musl-tools
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            build-name: postgres_migrator
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            build-name: postgres_migrator
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            build-name: postgres_migrator.exe
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target.target }}
+
+      - name: Install packages
+        if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
+        run: sudo apt install ${{ matrix.target.packages }} -y
+
+      - name: Build project
+        run: cargo build --release --target ${{ matrix.target.target }}
+
+      - run: ls target/release
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target.artifact-name }}
+          path: target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
