@@ -1,26 +1,13 @@
-version: '3'
+version: "3"
 services:
-  dev:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    image: migrator-dev
-    container_name: migrator-dev
-    depends_on:
-      - db
-    environment:
-      - PG_URL=postgres://experiment_user:asdf@db:5432/experiment_db?sslmode=disable
-    volumes:
-      - .:/usr/working/
-    command: tail -F anything
-
   db:
-    image: postgres:alpine
-    container_name: db
+    image: postgres:latest
+    restart: always
     environment:
-      - POSTGRES_DB=experiment_db
-      - POSTGRES_USER=experiment_user
-      - POSTGRES_PASSWORD=asdf
+      - POSTGRES_DB=test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
-    command: postgres -c 'max_wal_size=2GB'
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data

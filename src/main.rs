@@ -303,18 +303,27 @@ fn gather_validated_migrations(args: &Args, client: &mut postgres::Client) -> Re
 
 
 fn compute_diff(source: &Config, target: &Config) -> Result<String> {
-	let output = std::process::Command::new("migra")
-		.arg("--unsafe")
-		.arg("--with-privileges")
-		.arg(to_connection_string(source))
+	let output = std::process::Command::new("docker")
+		.arg("run")
+		.arg("--network=host")
+		.arg("supabase/pgadmin-schema-diff")
 		.arg(to_connection_string(target))
+		.arg(to_connection_string(source))
 		.output()
-		.context("Error while calling migra")?;
+		.context("Error while calling 'docker run pgadmin-schema-diff'")?;
 
-	if output.stderr.len() != 0 {
-		return Err(anyhow!("migra failed: {}\n\n{}", output.status, String::from_utf8_lossy(&output.stderr)));
+	if !output.status.success() {
+		return Err(anyhow!("diff failed: {}\n\n{}", output.status, String::from_utf8_lossy(&output.stderr)));
 	}
-	Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+	Ok(
+		String::from_utf8_lossy(&output.stdout)
+			.trim()
+			.lines()
+			.filter(|x| !x.starts_with("NOTE") && !x.starts_with("--"))
+			.collect::<Vec<&str>>()
+			.join("\n")
+			.to_string()
+	)
 }
 
 
@@ -595,7 +604,6 @@ fn main() -> Result<()> {
 
 #[test]
 #[serial_test::serial]
-#[ignore]
 fn test_full() -> Result<()> {
 	fn get_config() -> Config {
 		std::env::var("PG_URL").unwrap().parse::<Config>().unwrap()
@@ -641,11 +649,13 @@ fn test_full() -> Result<()> {
 	assert_eq!(get_migration_count(), 2);
 	command_migrate(&get_args(""), &mut get_config().connect(postgres::NoTls)?)?;
 	client.batch_execute("select id, name, flavor from fruit")?;
+	client.batch_execute("select name from person")?;
 
 	// # schema.3
 	command_compact(&get_args("schemas/schema.3"))?;
 	assert_eq!(get_migration_count(), 1);
-	client.batch_execute("select person.name, fruit.name, flavor from person join fruit on person.favorite_fruit = fruit.id where flavor = 'SALTY'")?;
+	client.batch_execute("select name from fruit")?;
+	assert!(client.batch_execute("select name from person").is_err());
 
 	// # schema.1
 	command_generate(&get_args("schemas/schema.1"), "back to one")?;

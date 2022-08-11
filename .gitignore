@@ -3,3 +3,5 @@ migrations
 /target
 
 *.local.*
+
+node_modules
