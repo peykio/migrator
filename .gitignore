@@ -5,3 +5,6 @@ migrations
 *.local.*
 
 node_modules
+
+bin
+!bin/index.js
