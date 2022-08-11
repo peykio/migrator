@@ -12,7 +12,6 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
@@ -27,6 +26,7 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
             build-name: postgres_migrator
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v2
 
