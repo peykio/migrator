@@ -9,7 +9,10 @@
 	"files": [
 		"bin"
 	],
-	"main": "bin/index.js",
+	"main": "./bin/index.js",
+	"bin": {
+		"migrator": "./bin/index.js"
+	},
 	"devDependencies": {
 		"@changesets/changelog-github": "^0.4.3",
 		"@changesets/cli": "^2.21.0"
