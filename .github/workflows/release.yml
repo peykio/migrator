@@ -47,7 +47,6 @@ jobs:
           path: target/${{ matrix.target.target }}/release/postgres_migrator
 
   release:
-    name: Release to GPR
     runs-on: ubuntu-latest
     needs: [build]
     steps:
