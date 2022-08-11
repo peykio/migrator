@@ -315,7 +315,15 @@ fn compute_diff(source: &Config, target: &Config) -> Result<String> {
 	if !output.status.success() {
 		return Err(anyhow!("diff failed: {}\n\n{}", output.status, String::from_utf8_lossy(&output.stderr)));
 	}
-	Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+	Ok(
+		String::from_utf8_lossy(&output.stdout)
+			.trim()
+			.lines()
+			.filter(|x| !x.starts_with("NOTE") && !x.starts_with("--"))
+			.collect::<Vec<&str>>()
+			.join("\n")
+			.to_string()
+	)
 }
 
 
@@ -596,7 +604,6 @@ fn main() -> Result<()> {
 
 #[test]
 #[serial_test::serial]
-#[ignore]
 fn test_full() -> Result<()> {
 	fn get_config() -> Config {
 		std::env::var("PG_URL").unwrap().parse::<Config>().unwrap()
