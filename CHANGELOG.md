@@ -1,5 +1,11 @@
 # @peykio/migrator
 
+## 0.1.2
+
+### Patch Changes
+
+- [`0318ef2`](https://github.com/peykio/migrator/commit/0318ef29e6641291812facd147e6d7e48ec4fada) Thanks [@jgnieuwhof](https://github.com/jgnieuwhof)! - add a 'migrator' bin script
+
 ## 0.1.1
 
 ### Patch Changes
