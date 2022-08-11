@@ -5,4 +5,4 @@ build:
   cargo build --release
 
 test:
-	PG_URL='postgres://postgres:postgres@localhost:5432/test?sslmode=disable' cargo test
+	PG_URL='postgres://postgres:postgres@localhost:5432/test' cargo test
