@@ -5,7 +5,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
   push:
     branches:
       - main
@@ -74,18 +73,17 @@ jobs:
           chmod +x macos-x64/postgres_migrator
           chmod +x macos-arm64/postgres_migrator
 
-      - run: ls bin
-
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
           scope: "@peykio"
           node-version: 16
-      # - name: Create Release Pull Request or Publish Packages
-      #   uses: changesets/action@v1
-      #   with:
-      #     commit: "📦 version packages"
-      #     publish: npx changeset publish
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - name: Create Release Pull Request or Publish Packages
+        uses: changesets/action@v1
+        with:
+          commit: "📦 version packages"
+          publish: npx changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
