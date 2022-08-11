@@ -44,8 +44,6 @@ jobs:
       - name: Build project
         run: cargo build --release --target ${{ matrix.target.target }}
 
-      - run: ls target/release
-
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target.artifact-name }}
