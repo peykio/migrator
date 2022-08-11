@@ -79,6 +79,8 @@ jobs:
           scope: "@peykio"
           node-version: 16
 
+      - run: npm install
+
       - name: Create Release Pull Request or Publish Packages
         uses: changesets/action@v1
         with:
