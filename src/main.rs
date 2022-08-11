@@ -649,11 +649,13 @@ fn test_full() -> Result<()> {
 	assert_eq!(get_migration_count(), 2);
 	command_migrate(&get_args(""), &mut get_config().connect(postgres::NoTls)?)?;
 	client.batch_execute("select id, name, flavor from fruit")?;
+	client.batch_execute("select name from person")?;
 
 	// # schema.3
 	command_compact(&get_args("schemas/schema.3"))?;
 	assert_eq!(get_migration_count(), 1);
-	client.batch_execute("select person.name, fruit.name, flavor from person join fruit on person.favorite_fruit = fruit.id where flavor = 'SALTY'")?;
+	client.batch_execute("select name from fruit")?;
+	assert!(client.batch_execute("select name from person").is_err());
 
 	// # schema.1
 	command_generate(&get_args("schemas/schema.1"), "back to one")?;
