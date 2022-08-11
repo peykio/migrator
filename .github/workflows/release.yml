@@ -11,23 +11,20 @@ on:
       - main
 
 jobs:
-  release:
+  build:
     strategy:
       matrix:
         target:
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            build-name: postgres_migrator
-            artifact-name: relay-bin-linux-x64
+            artifact-name: postgres-migrator-bin-linux-x64
             packages: musl-tools
           - target: x86_64-apple-darwin
             os: macos-latest
-            build-name: postgres_migrator
-            artifact-name: relay-bin-macos-x64
+            artifact-name: postgres-migrator-bin-macos-x64
           - target: aarch64-apple-darwin
             os: macos-latest
-            build-name: postgres_migrator
-            artifact-name: relay-bin-macos-arm64
+            artifact-name: postgres-migrator-bin-macos-arm64
     runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v2
@@ -47,4 +44,33 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target.artifact-name }}
-          path: target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
+          path: target/${{ matrix.target.target }}/release/postgres_migrator
+
+  release:
+    name: Release to GPR
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: postgres-migrator-bin-linux-x64
+          path: artifacts/linux-x64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: postgres-migrator-bin-macos-x64
+          path: artifacts/macos-x64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: postgres-migrator-bin-macos-arm64
+          path: artifacts/macos-arm64
+
+      - name: Mark binaries as executable
+        working-directory: artifacts
+        run: |
+          chmod +x linux-x64/postgres_migrator
+          chmod +x macos-x64/postgres_migrator
+          chmod +x macos-arm64/postgres_migrator
